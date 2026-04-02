@@ -1,0 +1,55 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: etl-config
+  namespace: airflow
+data:
+  S3_BUCKET:        "my-etl-bucket"
+  S3_INPUT_PREFIX:  "data/input"
+  S3_OUTPUT_PREFIX: "data/output"
+  TARGET_API_URL:   "https://api.example.com"
+  APP_ENV:          "production"
+  AWS_REGION:       "us-east-1"
+  ETL_BASE_IMAGE:   "bitnami/minideb:latest"
+  NEXUS_URL:        "https://nexus.example.com/repository/maven-releases"
+  NEXUS_GROUP:      "com/example/etl"
+
+  # To add a job:    add entry → kubectl apply -f airflow-k8s.yaml
+  # To upgrade JAR:  bump jar_version → kubectl apply -f airflow-k8s.yaml
+  # To pause a job:  set "enabled": false
+  ETL_JOB_CONFIGS: |
+    [
+      {
+        "scheduler":   "CUSTOMER_ETL",
+        "schedule":    "* * * * *",
+        "memory":      "1Gi",
+        "cpu":         "500m",
+        "jar_name":    "customer-etl",
+        "jar_version": "1.2.3"
+      },
+      {
+        "scheduler":   "ORDERS_ETL",
+        "schedule":    "0 3 * * *",
+        "memory":      "2Gi",
+        "cpu":         "1000m",
+        "jar_name":    "orders-etl",
+        "jar_version": "2.0.1"
+      },
+      {
+        "scheduler":   "INVENTORY_ETL",
+        "schedule":    "0 4 * * 1",
+        "memory":      "512Mi",
+        "cpu":         "250m",
+        "jar_name":    "inventory-etl",
+        "jar_version": "1.0.0"
+      },
+      {
+        "scheduler":   "PRODUCTS_ETL",
+        "schedule":    "0 1 1 * *",
+        "memory":      "1Gi",
+        "cpu":         "500m",
+        "jar_name":    "products-etl",
+        "jar_version": "1.1.0",
+        "enabled":     false
+      }
+    ]
