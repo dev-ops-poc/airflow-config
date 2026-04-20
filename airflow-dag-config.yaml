@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: airflow-dag-config
+  namespace: airflow
+data:
+  # To add a job:    add entry → kubectl apply -f airflow-dag-config.yaml
+  # To upgrade JAR:  bump image_name tag or jar version → kubectl apply
+  # To pause a job:  set "enabled": false
+  #
+  # Mandatory fields:  scheduler, schedule, image_name
+  # Optional fields:   cm_name, secret_name, image_pull_secret,
+  #                    pvc_name (mounted at /data), cpu (default: 500m), memory (default: 1Gi)
+  JOB_CONFIGS: |
+    [
+      {
+        "scheduler":          "CUSTOMER_ETL",
+        "schedule":           "* * * * *",
+        "image_name":         "bitnami/minideb:latest",
+        "memory":             "1Gi",
+        "cpu":                "500m",
+        "cm_name":            "generic-cm",
+        "secret_name":        "generic-secret"
+      },
+      {
+        "scheduler":          "ORDERS_ETL",
+        "schedule":           "0 3 * * *",
+        "image_name":         "bitnami/minideb:latest",
+        "memory":             "2Gi",
+        "cpu":                "1000m",
+        "cm_name":            "generic-cm",
+        "secret_name":        "generic-secret",
+        "pod_command":        "echo Hello World! This is the CUSTOMER_ETL job."
+      },
+      {
+        "scheduler":          "INVENTORY_ETL",
+        "schedule":           "0 4 * * 1",
+        "image_name":         "bitnami/minideb:latest",
+        "memory":             "512Mi",
+        "cpu":                "250m",
+        "cm_name":            "generic-cm",
+        "secret_name":        "generic-secret"
+      },
+      {
+        "scheduler":          "PRODUCTS_ETL",
+        "schedule":           "0 1 1 * *",
+        "image_name":         "bitnami/minideb:latest",
+        "enabled":            false
+      }
+    ]
